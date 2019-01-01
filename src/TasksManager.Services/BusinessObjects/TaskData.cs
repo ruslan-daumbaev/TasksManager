@@ -1,8 +1,9 @@
 ﻿using System;
 
-namespace TasksManager.Data.Entities
+
+namespace TasksManager.Services.BusinessObjects
 {
-    public class Task
+    public class TaskData
     {
         public int Id { get; set; }
 
@@ -15,6 +16,5 @@ namespace TasksManager.Data.Entities
         public DateTime AddedDate { get; set; }
 
         public bool IsDeleted { get; set; }
-
     }
 }
