@@ -1,0 +1,42 @@
+<h4 class="page-header">Tasks list</h4>
+
+<p *ngIf="!tasks$"><em>Loading...</em></p>
+
+<p-table #dt [value]="tasks$|async" selectionMode="single" [(selection)]="selectedTask" dataKey="id" (onRowSelect)="onRowSelect($event)"
+    (onRowUnselect)="onRowUnselect($event)" [globalFilterFields]="['status']"
+    [scrollable]="true" scrollHeight="400px">
+
+    <ng-template pTemplate="caption">
+        <div class="ui-helper-clearfix">
+            <p-selectButton [options]="filters" [style]="{'float':'left'}" [(ngModel)]="selectedFilter" (onChange)="dt.filterGlobal($event.value, 'equals')"></p-selectButton>
+            <button type="button" pButton icon="fa fa-refresh" iconPos="left" label="Refresh"  style="float:right"></button>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Name</th>
+            <th>Priority</th>
+            <th>Added date</th>
+            <th>Time to complete</th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData let-task>
+        <tr [pSelectableRow]="rowData">
+            <td>{{task.name}}</td>
+            <td>{{task.priority}}</td>
+            <td>{{task.addedDate | date:'dd.MM.yyyy h:mm'}}</td>
+            <td>{{task.timeToComplete | date:'dd.MM.yyyy h:mm'}}</td>
+            <td>
+                <button *ngIf="task.status=='Active'" pButton type="button" icon="pi pi-check" class="ui-button-success row-button" label="Complete"
+                    (click)="completeTask($event, rowData)"></button>
+                <button *ngIf="task.status=='Completed'" pButton type="button" icon="pi pi-trash" class="ui-button-danger  row-button" label="Delete"
+                    (click)="removeTask($event, rowData)"></button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p></p>
+
+<router-outlet></router-outlet>

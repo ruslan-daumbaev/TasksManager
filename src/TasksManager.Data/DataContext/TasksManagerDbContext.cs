@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using TasksManager.Data.Entities;
 
 namespace TasksManager.Data.DataContext
@@ -10,5 +11,10 @@ namespace TasksManager.Data.DataContext
         }
 
         public DbSet<Task> Tasks { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Task>().Property(t => t.ChangeDate).HasDefaultValue(DateTime.Now);
+        }
     }
 }

@@ -1,0 +1,50 @@
+<h4 class="page-header">Add new task</h4>
+
+<div class="col-md-8 order-md-1">
+    <form novalidate #form="ngForm" (ngSubmit)="save(form)">
+        <div>
+            <div class="row mb-4">
+                <div class="col-4 themed-grid-col">
+                    <label for="username">Name</label>
+                </div>
+
+                <div class="col-6 themed-grid-col">
+                    <input type="text" pInputText [(ngModel)]="task.name" name="name" />
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4 themed-grid-col">
+                    <label for="username">Description</label>
+                </div>
+
+                <div class="col-6 themed-grid-col">
+                    <textarea pInputTextarea [(ngModel)]="task.description" name="description"></textarea>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4 themed-grid-col">
+                    <label for="username">Priority</label>
+                </div>
+
+                <div class="col-6 themed-grid-col">
+                    <p-spinner [(ngModel)]="task.priority" name="priority"></p-spinner>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4 themed-grid-col">
+                    <label for="username">Time to complete</label>
+                </div>
+                <div class="col-6 themed-grid-col">
+                    <p-calendar [(ngModel)]="task.timeToComplete" showTime="true" hourFormat="24" name="timeToComplete"></p-calendar>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-4 themed-grid-col">
+                    <p-button label="Save"></p-button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>

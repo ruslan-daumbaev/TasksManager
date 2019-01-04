@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using TasksManager.Services.BusinessObjects;
 
@@ -10,8 +8,12 @@ namespace TasksManager.Services.Contracts
     {
         Task<IList<TaskData>> GetAllTasksAsync();
 
-        Task<TaskData> GetTask(int id);
+        Task<TaskData> GetTaskAsync(int id);
 
-        TaskData CreateTask();
+        Task<TaskData> CreateTaskAsync(TaskData newTask);
+
+        Task CompleteTaskAsync(int id);
+
+        Task DeleteTaskAsync(int id);
     }
 }

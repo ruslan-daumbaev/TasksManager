@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using TasksManager.Data.DataContext;
 using TasksManager.Services.Contracts;
 using TasksManager.Services.Implementation;
+using TasksManager.Web.Infrastructure;
 
 namespace TasksManager.Web
 {
@@ -26,26 +27,38 @@ namespace TasksManager.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            logger.LogDebug("Started services configuration");
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             var conString = configuration["ConnectionStrings:DefaultConnection"];
             services.AddDbContext<TasksManagerDbContext>(options => options.UseSqlServer(conString));
-            services.AddScoped<ITasksService, TasksService>();
+            services.AddTransient<ITasksService, TasksService>();
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(cfg => { cfg.RootPath = "ClientApp/dist"; });
+
+            logger.LogDebug("Finished services configuration");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            logger.LogDebug("Started app configuration");
+
             if (env.IsDevelopment())
             {
+                logger.LogDebug("Development environment is used");
+
                 app.UseDeveloperExceptionPage();
+                app.UseMiddleware<ExceptionMiddleware>();
             }
             else
             {
-                app.UseExceptionHandler("/Error");
+                logger.LogDebug("Production environment is used");
+
+                app.UseMiddleware<ExceptionMiddleware>();
+                app.UseExceptionHandler();
                 app.UseHsts();
             }
 
@@ -72,6 +85,8 @@ namespace TasksManager.Web
                     spa.UseAngularCliServer(npmScript: "start");
                 }
             });
+
+            logger.LogDebug("Finished app configuration");
         }
     }
 }
