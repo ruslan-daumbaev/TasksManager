@@ -6,7 +6,7 @@ namespace TasksManager.Services.Contracts
 {
     public interface ITasksService
     {
-        Task<TasksPagedData> GetAllTasksAsync(int startFrom, int pageSize, string status);
+        Task<TasksPagedData> GetAllTasksAsync(int startFrom, int pageSize, string status, string sortField, int sortOrder);
 
         Task<TaskData> GetTaskAsync(int id);
 

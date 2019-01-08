@@ -13,6 +13,10 @@ export class Task {
     }
 
     resetActualDate() {
+        if(this.status === "Completed"){
+            this.timeToCompleteActual = "Completed";
+            return;
+        }
         let dt = Math.floor((this.timeToComplete.getTime() - new Date().getTime()) / 1000);
 
         this.timeToCompleteActual = this.getTimeToComplteString(dt);

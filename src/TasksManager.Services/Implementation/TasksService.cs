@@ -25,7 +25,8 @@ namespace TasksManager.Services.Implementation
             this.dbContext = dbContext;
         }
 
-        public async Task<TasksPagedData> GetAllTasksAsync(int startFrom, int pageSize, string status)
+        public async Task<TasksPagedData> GetAllTasksAsync(int startFrom, int pageSize, string status, string sortField,
+            int sortOrder)
         {
             try
             {
@@ -35,8 +36,14 @@ namespace TasksManager.Services.Implementation
                 {
                     query = query.Where(r => r.Status == statusFilter.Value);
                 }
+
                 var totalRecords = await query.CountAsync();
-                var tasks = await query.OrderBy(r => r.TimeToComplete).Skip(startFrom).Take(pageSize)
+                if (!string.IsNullOrWhiteSpace(sortField))
+                {
+                    query = ApplySorting(sortField, sortOrder, query);
+                }
+
+                var tasks = await query.Skip(startFrom).Take(pageSize)
                     .ToListAsync();
 
                 return new TasksPagedData
@@ -132,6 +139,22 @@ namespace TasksManager.Services.Implementation
             logger.LogDebug($"Task with Id={id} has been successfully marked as deleted");
         }
 
+        private static IQueryable<Data.Entities.Task> ApplySorting(string sortField, int sortOrder,
+            IQueryable<Data.Entities.Task> query)
+        {
+            switch (sortField)
+            {
+                case "name":
+                    return sortOrder == 1 ? query.OrderBy(r => r.Name) : query.OrderByDescending(r => r.Name);
+                case "priority":
+                    return sortOrder == 1
+                        ? query.OrderBy(r => r.Priority)
+                        : query.OrderByDescending(r => r.Priority);
+                default:
+                    return query.OrderBy(r => r.TimeToComplete);
+            }
+        }
+
         private async Task<Data.Entities.Task> GetTask(int id)
         {
             Data.Entities.Task task;
@@ -159,8 +182,9 @@ namespace TasksManager.Services.Implementation
             int? statusFilter = null;
             if (Enum.TryParse(status, out TaskStatus parsedStatus))
             {
-                statusFilter = (int)parsedStatus;
+                statusFilter = (int) parsedStatus;
             }
+
             return statusFilter;
         }
     }

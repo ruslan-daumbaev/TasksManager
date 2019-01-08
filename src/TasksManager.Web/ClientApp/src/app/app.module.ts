@@ -15,7 +15,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { EditorModule } from 'primeng/editor';
-
+import { ToastModule}  from 'primeng/toast';
 import { AppComponent } from './app.component';
 import { AddTaskComponent } from './add-task/add-task.component';
 import { AppRoutingModule }        from './app-routing.module';
@@ -44,7 +44,8 @@ import { AppRoutingModule }        from './app-routing.module';
     ReactiveFormsModule,
     MessagesModule,
     MessageModule,
-    EditorModule
+    EditorModule,
+    ToastModule
   ],
   providers: [],
   bootstrap: [AppComponent]

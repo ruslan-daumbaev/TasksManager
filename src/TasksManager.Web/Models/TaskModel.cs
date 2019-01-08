@@ -5,14 +5,11 @@ namespace TasksManager.Web.Models
 {
     public class TaskModel : TaskModelBase
     {
-        public TaskModel()
-        {
-        }
-
         public TaskModel(TaskData data)
         {
             Id = data.Id;
             Name = data.Name;
+            Priority = data.Priority;
             AddedDate = data.AddedDate;
             Status = data.Status.ToString();
             TimeToComplete = data.TimeToComplete.ToString("u");

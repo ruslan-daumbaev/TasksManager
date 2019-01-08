@@ -20,9 +20,9 @@ namespace TasksManager.Web.Controllers
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Get(int page, int pageSize, string statusFilter)
+        public async Task<IActionResult> Get(int page, int pageSize, string statusFilter, string sortField, int sortOrder)
         {
-            var tasksData = await tasksService.GetAllTasksAsync(page, pageSize, statusFilter);
+            var tasksData = await tasksService.GetAllTasksAsync(page, pageSize, statusFilter, sortField, sortOrder);
             return Ok(new
             {
                 Tasks = tasksData.Tasks.Select(t => new TaskModel(t)).ToList(),

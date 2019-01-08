@@ -17,8 +17,11 @@ export class TaskService {
     constructor(private http: HttpClient) {
     }
 
-    getTasks(page: number, rows: number, statusFilter: string) {
-        const options = { params: new HttpParams().set('page', page.toString()).set('pageSize', rows.toString()).set('statusFilter', statusFilter) };
+    getTasks(page: number, rows: number, statusFilter: string, sortField: string, sortOrder: string) {
+        const options = {
+            params: new HttpParams().set('page',
+                page.toString()).set('pageSize', rows.toString()).set('statusFilter', statusFilter).set('sortField', sortField).set('sortOrder', sortOrder)
+        };
         this.tasks$ = this.http.get<TaskData>('api/Tasks/', options);
         return this.tasks$;
     }

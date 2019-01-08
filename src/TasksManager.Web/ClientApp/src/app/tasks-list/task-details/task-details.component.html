@@ -14,7 +14,7 @@
         </div>
 
         <div class="col-6 themed-grid-col">
-            <div [innerHTML]="task.description"></div>
+            <div [innerHTML]="description"></div>
         </div>
     </div>
     <div class="row mb-3">
@@ -40,7 +40,7 @@
             <label for="username">Added</label>
         </div>
         <div class="col-6 themed-grid-col">
-            <label>{{task.addedDate | date:'dd.MM.yyyy h:mm'}}</label>
+            <label>{{task.addedDate | date:'dd.MM.yyyy H:mm'}}</label>
         </div>
     </div>
 </p-panel>

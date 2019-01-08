@@ -4,13 +4,16 @@ import { Task } from '../../model/task.model';
 import { TaskService } from '../tasks.service';
 import { DataTable } from 'primeng/datatable';
 import { timer, Subscription } from 'rxjs';
-
+import { Message } from 'primeng/components/common/api';
+import { MessageService } from 'primeng/components/common/messageservice';
 
 @Component({
     selector: 'app-tasks-table',
     templateUrl: './tasks-table.component.html'
 })
 export class TasksTableComponent implements OnInit {
+    msgs: Message[] = [];
+
     selectedId: number;
 
     tasks: Task[];
@@ -23,7 +26,7 @@ export class TasksTableComponent implements OnInit {
 
     totalRecords: number;
 
-    loading: boolean;
+    loading: boolean = false;
 
     currentFirst: number;
 
@@ -57,7 +60,7 @@ export class TasksTableComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        if(this.params){
+        if (this.params) {
             this.params.unsubscribe();
         }
     }
@@ -73,6 +76,7 @@ export class TasksTableComponent implements OnInit {
     }
 
     update(dt: DataTable) {
+        this.clear();
         dt.reset();
     }
 
@@ -81,7 +85,7 @@ export class TasksTableComponent implements OnInit {
         this.currentFirst = event.first;
         this.currentRows = event.rows;
         let select = this.selectedId;
-        this.taskService.getTasks(event.first, event.rows, event.globalFilter).subscribe(t => {
+        this.taskService.getTasks(event.first, event.rows, event.globalFilter, event.sortField, event.sortOrder).subscribe(t => {
             this.tasks = t.tasks.map(ts => new Task(ts.id, ts.name, null, new Date(ts.timeToComplete), ts.addedDate, ts.priority, ts.status));
             this.totalRecords = t.totalRecords;
             this.loading = false;
@@ -89,6 +93,9 @@ export class TasksTableComponent implements OnInit {
             if (this.selectedTask == undefined) {
                 this.selectedTask = this.tasks.find(task => task.id == select);
             }
+        }, error => {
+            console.error(error);
+            this.showError(error);
         });
     }
 
@@ -98,7 +105,10 @@ export class TasksTableComponent implements OnInit {
         this.taskService.completeTask(rowData.id).subscribe(result => {
             rowData.status = "Completed";
             this.taskService.currentTaskChanged.next(rowData.id);
-        }, error => console.error(error));
+        }, error => {
+            console.error(error);
+            this.showError(error);
+        });
     }
 
     removeTask(event, rowData) {
@@ -109,8 +119,20 @@ export class TasksTableComponent implements OnInit {
             this.tasks.splice(index, 1);
             this.selectedTask = null;
             this.router.navigate(['/tasks-list/']);
-        }, error => console.error(error));
+        }, error => {
+            console.error(error);
+            this.showError(error);
+        });
         console.debug(this.selectedTask.id);
+    }
+
+    showError(error) {
+        this.msgs = [];
+        this.msgs.push({ severity: 'error', summary: 'Operation failed', detail: 'Couldn\'t add task: ' + error.statusText });
+    }
+
+    clear() {
+        this.msgs = [];
     }
 }
 
