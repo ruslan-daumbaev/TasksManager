@@ -17,8 +17,6 @@ namespace TasksManager.Services.BusinessObjects
 
         public DateTime AddedDate { get; set; }
 
-        public bool IsDeleted { get; set; }
-
         public TaskStatus Status { get; set; }
     }
 }

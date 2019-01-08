@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,19 +25,32 @@ namespace TasksManager.Services.Implementation
             this.dbContext = dbContext;
         }
 
-        public async Task<IList<TaskData>> GetAllTasksAsync()
+        public async Task<TasksPagedData> GetAllTasksAsync(int startFrom, int pageSize, string status)
         {
             try
             {
-                var tasks = await dbContext.Tasks.Where(t => t.Status != (int) TaskStatus.Deleted).Select(t => t)
+                var query = dbContext.Tasks.Where(t => t.Status != (int) TaskStatus.Deleted);
+                var statusFilter = GetStatusFilter(status);
+                if (statusFilter.HasValue)
+                {
+                    query = query.Where(r => r.Status == statusFilter.Value);
+                }
+                var totalRecords = await query.CountAsync();
+                var tasks = await query.OrderBy(r => r.TimeToComplete).Skip(startFrom).Take(pageSize)
                     .ToListAsync();
-                return tasks.Select(t => t.ConvertToTaskData()).ToList();
+
+                return new TasksPagedData
+                {
+                    Tasks = tasks.Select(t => t.ConvertToTaskData()).ToList(),
+                    TotalRecords = totalRecords
+                };
             }
             catch (SqlException ex)
             {
                 throw new TaskProcessingException(ex);
             }
         }
+
 
         public async Task<TaskData> GetTaskAsync(int id)
         {
@@ -138,6 +150,18 @@ namespace TasksManager.Services.Implementation
             }
 
             return task;
+        }
+
+
+        private static int? GetStatusFilter(string status)
+        {
+            if (status == null) return null;
+            int? statusFilter = null;
+            if (Enum.TryParse(status, out TaskStatus parsedStatus))
+            {
+                statusFilter = (int)parsedStatus;
+            }
+            return statusFilter;
         }
     }
 }

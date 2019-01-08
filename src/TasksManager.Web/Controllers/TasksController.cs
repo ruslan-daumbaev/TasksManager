@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Ganss.XSS;
 using Microsoft.AspNetCore.Mvc;
 using TasksManager.Services.BusinessObjects;
 using TasksManager.Services.Contracts;
@@ -19,26 +20,41 @@ namespace TasksManager.Web.Controllers
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int page, int pageSize, string statusFilter)
         {
-            var tasks = await tasksService.GetAllTasksAsync();
-            return Ok(tasks.Select(t => new TaskModel(t)).ToArray());
+            var tasksData = await tasksService.GetAllTasksAsync(page, pageSize, statusFilter);
+            return Ok(new
+            {
+                Tasks = tasksData.Tasks.Select(t => new TaskModel(t)).ToList(),
+                tasksData.TotalRecords
+            });
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var task = await tasksService.GetTaskAsync(id);
-            return Ok(new TaskModel(task));
+            return Ok(new
+                {
+                    task.Id,
+                    task.Name,
+                    task.Description,
+                    Status = task.Status.ToString(),
+                    task.Priority,
+                    task.AddedDate
+                }
+            );
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] TaskModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Post([FromBody] CreateTaskModel model)
         {
+            var sanitizer = new HtmlSanitizer();
             var task = await tasksService.CreateTaskAsync(new TaskData
             {
                 Name = model.Name,
-                Description = model.Description,
+                Description = sanitizer.Sanitize(model.Description),
                 Priority = model.Priority,
                 TimeToComplete = model.TimeToComplete
             });
@@ -47,6 +63,7 @@ namespace TasksManager.Web.Controllers
         }
 
         [HttpPut]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Put(UpdateStatusModel updateModel)
         {
             await tasksService.CompleteTaskAsync(updateModel.Id);
@@ -54,6 +71,7 @@ namespace TasksManager.Web.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             await tasksService.DeleteTaskAsync(id);

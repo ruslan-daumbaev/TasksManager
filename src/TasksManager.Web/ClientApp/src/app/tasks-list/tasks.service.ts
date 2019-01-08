@@ -1,31 +1,41 @@
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Injectable, Inject } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
+import { Injectable } from '@angular/core';
 import { Task } from '../model/task.model';
-import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { TaskData } from '../model/task-data.model';
 
 
 @Injectable({
     providedIn: 'root',
 })
 export class TaskService {
-    private tasks$: Observable<Task[]>;
+    private tasks$: Observable<TaskData>;
 
-    constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string) {
-        this.tasks$ = http.get<Task[]>(baseUrl + 'api/Tasks/');
+    currentTaskChanged: Subject<number> = new Subject<number>();
+
+
+    constructor(private http: HttpClient) {
     }
 
-    getTasks() {
+    getTasks(page: number, rows: number, statusFilter: string) {
+        const options = { params: new HttpParams().set('page', page.toString()).set('pageSize', rows.toString()).set('statusFilter', statusFilter) };
+        this.tasks$ = this.http.get<TaskData>('api/Tasks/', options);
         return this.tasks$;
     }
 
     getTask(id: number | string) {
-        return this.getTasks().pipe(
-            map(tasks => tasks.find(task => task.id === +id))
-        );
+        return this.http.get<Task>('api/Tasks/' + id);
     }
 
-    addTask(name: string) {
+    addTask(value: any) {
+        return this.http.post<Task>('api/Tasks/', value);
+    }
 
+    completeTask(id: number) {
+        return this.http.put<Task>('api/Tasks/', { "id": id });
+    }
+
+    deleteTask(id: number) {
+        return this.http.delete('api/Tasks/' + id);
     }
 }

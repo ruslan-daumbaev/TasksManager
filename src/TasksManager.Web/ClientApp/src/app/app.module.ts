@@ -1,8 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { HttpClientModule } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
 import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -13,17 +12,17 @@ import { PanelModule } from 'primeng/panel';
 import { ToolbarModule } from 'primeng/toolbar';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { MessagesModule } from 'primeng/messages';
+import { MessageModule } from 'primeng/message';
+import { EditorModule } from 'primeng/editor';
 
 import { AppComponent } from './app.component';
-//import { TasksListComponent } from './tasks-list/tasks-list.component';
 import { AddTaskComponent } from './add-task/add-task.component';
 import { AppRoutingModule }        from './app-routing.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    //TasksListComponent,
     AddTaskComponent
   ],
   imports: [
@@ -40,7 +39,12 @@ import { AppRoutingModule }        from './app-routing.module';
     ToolbarModule,
     SelectButtonModule,
     BrowserAnimationsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MessagesModule,
+    MessageModule,
+    EditorModule
   ],
   providers: [],
   bootstrap: [AppComponent]

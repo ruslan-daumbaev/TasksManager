@@ -6,8 +6,5 @@ namespace TasksManager.Web.Models
     {
         [Required]
         public int Id { get; set; }
-
-        [EnumDataType(typeof(TaskStatus))]
-        public TaskStatus Status { get; set; }
     }
 }

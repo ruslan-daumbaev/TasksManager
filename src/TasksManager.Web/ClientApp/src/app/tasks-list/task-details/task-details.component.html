@@ -1,4 +1,4 @@
-<p-panel header="Task details">
+<p-panel header="Task details" *ngIf="task">
     <div class="row mb-3">
         <div class="col-4 themed-grid-col">
             <label>Name</label>
@@ -14,7 +14,7 @@
         </div>
 
         <div class="col-6 themed-grid-col">
-            <label>{{task.description}}</label>
+            <div [innerHTML]="task.description"></div>
         </div>
     </div>
     <div class="row mb-3">

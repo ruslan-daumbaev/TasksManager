@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using TasksManager.Services.BusinessObjects;
+using TaskStatus = TasksManager.Services.BusinessObjects.TaskStatus;
 
 namespace TasksManager.Services.Contracts
 {
     public interface ITasksService
     {
-        Task<IList<TaskData>> GetAllTasksAsync();
+        Task<TasksPagedData> GetAllTasksAsync(int startFrom, int pageSize, string status);
 
         Task<TaskData> GetTaskAsync(int id);
 

@@ -24,7 +24,7 @@ export class TaskDetailsResolverService implements Resolve<Task> {
             mergeMap(task => {
                 if (task) {
                     return of(task);
-                } else { // id not found
+                } else { 
                     this.router.navigate(['/tasks-list']);
                     return EMPTY;
                 }

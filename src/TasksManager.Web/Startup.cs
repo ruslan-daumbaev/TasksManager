@@ -1,5 +1,8 @@
+using System;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +37,7 @@ namespace TasksManager.Web
             var conString = configuration["ConnectionStrings:DefaultConnection"];
             services.AddDbContext<TasksManagerDbContext>(options => options.UseSqlServer(conString));
             services.AddTransient<ITasksService, TasksService>();
+            services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(cfg => { cfg.RootPath = "ClientApp/dist"; });
@@ -42,7 +46,7 @@ namespace TasksManager.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IAntiforgery antiforgery)
         {
             logger.LogDebug("Started app configuration");
 
@@ -71,6 +75,21 @@ namespace TasksManager.Web
                 routes.MapRoute(
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");
+            });
+
+            app.Use(next => context =>
+            {
+                string path = context.Request.Path.Value;
+                if (string.Equals(path, "/", StringComparison.OrdinalIgnoreCase))
+                {
+                    // The request token can be sent as a JavaScript-readable cookie, 
+                    // and Angular uses it by default.
+                    var tokens = antiforgery.GetAndStoreTokens(context);
+                    context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken,
+                        new CookieOptions() { HttpOnly = false });
+                }
+
+                return next(context);
             });
 
             app.UseSpa(spa =>

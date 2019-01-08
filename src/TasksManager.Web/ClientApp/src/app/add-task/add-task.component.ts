@@ -1,25 +1,34 @@
-import { Component, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { NgForm } from "@angular/forms";
+import { Component, Inject, OnInit } from '@angular/core';
+import { Validators, FormControl, FormGroup, FormBuilder, NgForm } from "@angular/forms";
 import { Task } from "../model/task.model";
 import { ActivatedRoute, Router } from "@angular/router";
+import { TaskService } from '../tasks-list/tasks.service';
 
 @Component({
   selector: 'app-add-task',
   templateUrl: './add-task.component.html'
 })
-export class AddTaskComponent {
+export class AddTaskComponent implements OnInit {
   task: Task = new Task();
+  taskform: FormGroup;
+  minDate: Date;
 
+  constructor(private fb: FormBuilder, private router: Router, private taskService: TaskService) {
+    this.minDate = new Date();
+  }
 
-  constructor(private http: HttpClient, @Inject('BASE_URL') private baseUrl: string, activeRoute: ActivatedRoute, private router: Router) {
-
+  ngOnInit() {
+    this.taskform = this.fb.group({
+      'name': new FormControl('', Validators.required),
+      'description': new FormControl(''),
+      'priority': new FormControl(1, Validators.compose([Validators.required, Validators.min(1)])),
+      'timeToComplete': new FormControl('', Validators.required)
+    });
   }
 
   save(form: NgForm) {
-    this.http.post<Task>(this.baseUrl + 'api/Tasks/', this.task).subscribe(result => {
-      this.task = result;
-      this.router.navigateByUrl("/tasks-list/" + result.id);
+    this.taskService.addTask(form.value).subscribe(result => {
+      this.router.navigate(['/tasks-list/' + result.id]);
     }, error => console.error(error));
   }
 }

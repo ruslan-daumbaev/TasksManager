@@ -1,10 +1,10 @@
-import { NgModule }       from '@angular/core';
-import { FormsModule }    from '@angular/forms';
-import { CommonModule }   from '@angular/common';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
-import { TasksListComponent }       from './tasks-list/tasks-list.component';
-import { TasksTableComponent }       from './tasks-table/tasks-table.component';
-import { TaskDetailsComponent }       from './task-details/task-details.component';
+import { TasksListComponent } from './tasks-list/tasks-list.component';
+import { TasksTableComponent } from './tasks-table/tasks-table.component';
+import { TaskDetailsComponent } from './task-details/task-details.component';
 import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -14,7 +14,11 @@ import { TableModule } from 'primeng/table';
 import { PanelModule } from 'primeng/panel';
 import { ToolbarModule } from 'primeng/toolbar';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { MessagesModule } from 'primeng/messages';
+import { MessageModule } from 'primeng/message';
+import { EditorModule } from 'primeng/editor';
 import { TasksListRoutingModule } from './tasks-list-routing.module';
+
 
 @NgModule({
   imports: [
@@ -29,7 +33,10 @@ import { TasksListRoutingModule } from './tasks-list-routing.module';
     TableModule,
     PanelModule,
     ToolbarModule,
-    SelectButtonModule
+    SelectButtonModule,
+    MessagesModule,
+    MessageModule,
+    EditorModule
   ],
   declarations: [
     TasksListComponent,
@@ -37,4 +44,4 @@ import { TasksListRoutingModule } from './tasks-list-routing.module';
     TaskDetailsComponent
   ]
 })
-export class TasksListModule {}
+export class TasksListModule { }
