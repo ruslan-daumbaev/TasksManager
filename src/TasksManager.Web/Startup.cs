@@ -34,7 +34,7 @@ namespace TasksManager.Web
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            var conString = configuration["ConnectionStrings:DefaultConnection"];
+            var conString = configuration["ConnectionStrings:TMConnectionString"];
             services.AddDbContext<TasksManagerDbContext>(options => options.UseSqlServer(conString));
             services.AddTransient<ITasksService, TasksService>();
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");

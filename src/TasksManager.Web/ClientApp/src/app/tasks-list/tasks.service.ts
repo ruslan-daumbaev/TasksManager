@@ -9,7 +9,6 @@ import { TaskData } from '../model/task-data.model';
     providedIn: 'root',
 })
 export class TaskService {
-    private tasks$: Observable<TaskData>;
 
     currentTaskChanged: Subject<number> = new Subject<number>();
 
@@ -22,8 +21,7 @@ export class TaskService {
             params: new HttpParams().set('page',
                 page.toString()).set('pageSize', rows.toString()).set('statusFilter', statusFilter).set('sortField', sortField).set('sortOrder', sortOrder)
         };
-        this.tasks$ = this.http.get<TaskData>('api/Tasks/', options);
-        return this.tasks$;
+        return this.http.get<TaskData>('api/Tasks/', options);
     }
 
     getTask(id: number | string) {
