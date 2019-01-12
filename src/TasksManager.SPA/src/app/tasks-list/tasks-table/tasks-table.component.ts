@@ -113,7 +113,7 @@ export class TasksTableComponent implements OnInit {
         this.currentRows = event.rows;
         let select = this.selectedId;
         this.taskService.getTasks(event.first, event.rows, event.globalFilter, event.sortField, event.sortOrder).subscribe(t => {
-            this.tasks = t.tasks.map(ts => new Task(ts.id, ts.name, null, new Date(ts.timeToComplete), ts.addedDate, ts.priority, ts.status));
+            this.tasks = t.tasks.map(ts => new Task(ts.id, ts.name, null, new Date(ts.timeToComplete), new Date(ts.addedDate), ts.priority, ts.status));
             this.totalRecords = t.totalRecords;
             this.loading = false;
             this.selectedFilter = event.globalFilter;

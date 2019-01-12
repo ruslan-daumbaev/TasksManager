@@ -64,9 +64,9 @@ namespace TasksManager.Services.Implementation
 
             logger.LogDebug("Start creation of new task");
             var taskRecord = newTask.ConvertToTask();
-            taskRecord.AddedDate = DateTime.Now;
+            taskRecord.AddedDate = DateTime.UtcNow;
             taskRecord.Status = (int) TaskStatus.Active;
-            taskRecord.ChangeDate = DateTime.Now;
+            taskRecord.ChangeDate = DateTime.UtcNow;
             dbContext.Tasks.Add(taskRecord);
             try
             {

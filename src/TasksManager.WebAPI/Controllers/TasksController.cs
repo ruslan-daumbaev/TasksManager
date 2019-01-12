@@ -15,8 +15,8 @@ namespace TasksManager.WebAPI.Controllers
     public class TasksController : ControllerBase
     {
         private const string SignalRMethod = "Notify";
-        private readonly ITasksService tasksService;
         private readonly IHubContext<TasksHub> hubContext;
+        private readonly ITasksService tasksService;
 
 
         public TasksController(ITasksService tasksService, IHubContext<TasksHub> hubContext)
@@ -26,7 +26,8 @@ namespace TasksManager.WebAPI.Controllers
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Get(int page, int pageSize, string statusFilter, string sortField, int sortOrder)
+        public async Task<IActionResult> Get(int page, int pageSize, string statusFilter, string sortField,
+            int sortOrder)
         {
             var tasksData = await tasksService.GetAllTasksAsync(page, pageSize, statusFilter, sortField, sortOrder);
             return Ok(new
@@ -47,7 +48,7 @@ namespace TasksManager.WebAPI.Controllers
                     task.Description,
                     Status = task.Status.ToString(),
                     task.Priority,
-                    task.AddedDate
+                    AddedDate = task.AddedDateString
                 }
             );
         }

@@ -18,5 +18,9 @@ namespace TasksManager.Services.BusinessObjects
         public DateTime AddedDate { get; set; }
 
         public TaskStatus Status { get; set; }
+
+        public string AddedDateString => AddedDate.ToString("u");
+
+        public string TimeToCompleteString => TimeToComplete.ToString("u");
     }
 }

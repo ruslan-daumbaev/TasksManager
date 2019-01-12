@@ -27,7 +27,7 @@ export class TaskDetailsComponent implements OnInit {
     ngOnInit() {
         this.route.data
             .subscribe((data: { task: Task }) => {
-                this.task = data.task;
+                this.task = new Task(data.task.id, data.task.name, data.task.description, null, new Date(data.task.addedDate), data.task.priority, data.task.status);
                 this.description = this.sanitizer.bypassSecurityTrustHtml(this.task.description);
             });
     }

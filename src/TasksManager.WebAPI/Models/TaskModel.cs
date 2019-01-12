@@ -10,14 +10,14 @@ namespace TasksManager.WebAPI.Models
             Id = data.Id;
             Name = data.Name;
             Priority = data.Priority;
-            AddedDate = data.AddedDate;
+            AddedDate = data.AddedDateString;
             Status = data.Status.ToString();
-            TimeToComplete = data.TimeToComplete.ToString("u");
+            TimeToComplete = data.TimeToCompleteString;
         }
 
         public int Id { get; set; }
 
-        public DateTime AddedDate { get; set; }
+        public string AddedDate { get; set; }
 
         public string Status { get; set; }
 
