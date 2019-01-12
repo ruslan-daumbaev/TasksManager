@@ -4,9 +4,9 @@ using Ganss.XSS;
 using Microsoft.AspNetCore.Mvc;
 using TasksManager.Services.BusinessObjects;
 using TasksManager.Services.Contracts;
-using TasksManager.Web.Models;
+using TasksManager.WebAPI.Models;
 
-namespace TasksManager.Web.Controllers
+namespace TasksManager.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -47,7 +47,6 @@ namespace TasksManager.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Post([FromBody] CreateTaskModel model)
         {
             var sanitizer = new HtmlSanitizer();
@@ -63,7 +62,6 @@ namespace TasksManager.Web.Controllers
         }
 
         [HttpPut]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Put(UpdateStatusModel updateModel)
         {
             await tasksService.CompleteTaskAsync(updateModel.Id);
@@ -71,7 +69,6 @@ namespace TasksManager.Web.Controllers
         }
 
         [HttpDelete("{id}")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             await tasksService.DeleteTaskAsync(id);

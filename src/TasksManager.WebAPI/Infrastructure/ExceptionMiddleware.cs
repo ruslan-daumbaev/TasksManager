@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TasksManager.Services.Exceptions;
 
-namespace TasksManager.Web.Infrastructure
+namespace TasksManager.WebAPI.Infrastructure
 {
     public class ExceptionMiddleware
     {

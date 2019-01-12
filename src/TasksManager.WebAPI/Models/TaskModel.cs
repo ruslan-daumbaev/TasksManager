@@ -1,7 +1,7 @@
 ﻿using System;
 using TasksManager.Services.BusinessObjects;
 
-namespace TasksManager.Web.Models
+namespace TasksManager.WebAPI.Models
 {
     public class TaskModel : TaskModelBase
     {

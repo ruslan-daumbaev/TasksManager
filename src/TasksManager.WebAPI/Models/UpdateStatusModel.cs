@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TasksManager.Web.Models
+namespace TasksManager.WebAPI.Models
 {
     public class UpdateStatusModel
     {

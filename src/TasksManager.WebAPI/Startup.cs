@@ -1,10 +1,9 @@
-using System;
+﻿using System;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,39 +12,37 @@ using Swashbuckle.AspNetCore.Swagger;
 using TasksManager.Data.DataContext;
 using TasksManager.Services.Contracts;
 using TasksManager.Services.Implementation;
-using TasksManager.Web.Infrastructure;
+using TasksManager.WebAPI.Infrastructure;
 
-namespace TasksManager.Web
+namespace TasksManager.WebAPI
 {
     public class Startup
     {
         private readonly ILogger logger;
-        private readonly IConfiguration configuration;
 
         public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
-            this.configuration = configuration;
+            Configuration = configuration;
             this.logger = logger;
         }
+
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             logger.LogDebug("Started services configuration");
-
+            services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            var conString = configuration["ConnectionStrings:TMConnectionString"];
+            var conString = Configuration["ConnectionStrings:TMConnectionString"];
             services.AddDbContext<TasksManagerDbContext>(options => options.UseSqlServer(conString));
             services.AddTransient<ITasksService, TasksService>();
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
             // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(cfg => { cfg.RootPath = "ClientApp/dist"; });
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "TasksManager API", Version = "v1" });
-            });
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = "TasksManager API", Version = "v1"}); });
+          
 
             logger.LogDebug("Finished services configuration");
         }
@@ -53,7 +50,10 @@ namespace TasksManager.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IAntiforgery antiforgery)
         {
-            logger.LogDebug("Started app configuration");
+
+            app.UseCors(builder =>
+                builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
+            );
 
             if (env.IsDevelopment())
             {
@@ -67,30 +67,18 @@ namespace TasksManager.Web
                 logger.LogDebug("Production environment is used");
 
                 app.UseMiddleware<ExceptionMiddleware>();
-                app.UseExceptionHandler();
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseSpaStaticFiles();
 
             app.UseSwagger();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
             // specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "TasksManager API V1");
-            });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "TasksManager API V1"); });
 
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
-            });
+            app.UseHttpsRedirection();
+            app.UseMvc();
 
             app.Use(next => context =>
             {
@@ -101,26 +89,13 @@ namespace TasksManager.Web
                     // and Angular uses it by default.
                     var tokens = antiforgery.GetAndStoreTokens(context);
                     context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken,
-                        new CookieOptions() { HttpOnly = false });
+                        new CookieOptions() {HttpOnly = false});
                 }
 
                 return next(context);
             });
 
-            app.UseSpa(spa =>
-            {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
 
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseAngularCliServer(npmScript: "start");
-                }
-            });
-
-        
             logger.LogDebug("Finished app configuration");
         }
     }

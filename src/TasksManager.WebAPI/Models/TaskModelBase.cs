@@ -1,7 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace TasksManager.Web.Models
+namespace TasksManager.WebAPI.Models
 {
     public abstract class TaskModelBase
     {
