@@ -109,8 +109,8 @@ namespace TasksManager.Services.Implementation
         public async Task DeleteTaskAsync(int id)
         {
             logger.LogDebug($"Start deletion for task with Id={id}");
-            var task = await GetTask(id);
-            if (task.Status != (int) TaskStatus.Completed)
+            var task = await dbContext.Tasks.FindAsync(id);
+            if (task == null || task.Status != (int) TaskStatus.Completed)
             {
                 return;
             }

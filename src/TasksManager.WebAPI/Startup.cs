@@ -12,6 +12,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using TasksManager.Data.DataContext;
 using TasksManager.Services.Contracts;
 using TasksManager.Services.Implementation;
+using TasksManager.WebAPI.Hubs;
 using TasksManager.WebAPI.Infrastructure;
 
 namespace TasksManager.WebAPI
@@ -28,7 +29,6 @@ namespace TasksManager.WebAPI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             logger.LogDebug("Started services configuration");
@@ -40,20 +40,17 @@ namespace TasksManager.WebAPI
             services.AddTransient<ITasksService, TasksService>();
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
-            // In production, the Angular files will be served from this directory
+            // Add Swagger service
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = "TasksManager API", Version = "v1"}); });
-          
+            services.AddSignalR();
 
             logger.LogDebug("Finished services configuration");
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IAntiforgery antiforgery)
         {
-
-            app.UseCors(builder =>
-                builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
-            );
+            //for test allow all CORS operations
+            app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 
             if (env.IsDevelopment())
             {
@@ -67,14 +64,12 @@ namespace TasksManager.WebAPI
                 logger.LogDebug("Production environment is used");
 
                 app.UseMiddleware<ExceptionMiddleware>();
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseSwagger();
 
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
-            // specifying the Swagger JSON endpoint.
+            // Enable Swagger endpoint.
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "TasksManager API V1"); });
 
             app.UseHttpsRedirection();
@@ -82,17 +77,20 @@ namespace TasksManager.WebAPI
 
             app.Use(next => context =>
             {
-                string path = context.Request.Path.Value;
+                var path = context.Request.Path.Value;
                 if (string.Equals(path, "/", StringComparison.OrdinalIgnoreCase))
                 {
-                    // The request token can be sent as a JavaScript-readable cookie, 
-                    // and Angular uses it by default.
                     var tokens = antiforgery.GetAndStoreTokens(context);
                     context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken,
-                        new CookieOptions() {HttpOnly = false});
+                        new CookieOptions {HttpOnly = false});
                 }
 
                 return next(context);
+            });
+
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<TasksHub>("/tasks-ws");
             });
 
 

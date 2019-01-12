@@ -2,8 +2,10 @@
 using System.Threading.Tasks;
 using Ganss.XSS;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using TasksManager.Services.BusinessObjects;
 using TasksManager.Services.Contracts;
+using TasksManager.WebAPI.Hubs;
 using TasksManager.WebAPI.Models;
 
 namespace TasksManager.WebAPI.Controllers
@@ -12,11 +14,15 @@ namespace TasksManager.WebAPI.Controllers
     [ApiController]
     public class TasksController : ControllerBase
     {
+        private const string SignalRMethod = "Notify";
         private readonly ITasksService tasksService;
+        private readonly IHubContext<TasksHub> hubContext;
 
-        public TasksController(ITasksService tasksService)
+
+        public TasksController(ITasksService tasksService, IHubContext<TasksHub> hubContext)
         {
             this.tasksService = tasksService;
+            this.hubContext = hubContext;
         }
 
         [HttpGet("")]
@@ -58,6 +64,12 @@ namespace TasksManager.WebAPI.Controllers
                 TimeToComplete = model.TimeToComplete
             });
 
+            await hubContext.Clients.All.SendAsync(SignalRMethod, new TaskChangedEvent
+            {
+                Id = task.Id,
+                Change = ChangeType.Added.ToString()
+            });
+
             return Ok(new TaskModel(task));
         }
 
@@ -65,6 +77,11 @@ namespace TasksManager.WebAPI.Controllers
         public async Task<IActionResult> Put(UpdateStatusModel updateModel)
         {
             await tasksService.CompleteTaskAsync(updateModel.Id);
+            await hubContext.Clients.All.SendAsync(SignalRMethod, new TaskChangedEvent
+            {
+                Id = updateModel.Id,
+                Change = ChangeType.Completed.ToString()
+            });
             return Ok();
         }
 
@@ -72,6 +89,11 @@ namespace TasksManager.WebAPI.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             await tasksService.DeleteTaskAsync(id);
+            await hubContext.Clients.All.SendAsync(SignalRMethod, new TaskChangedEvent
+            {
+                Id = id,
+                Change = ChangeType.Deleted.ToString()
+            });
             return NoContent();
         }
     }

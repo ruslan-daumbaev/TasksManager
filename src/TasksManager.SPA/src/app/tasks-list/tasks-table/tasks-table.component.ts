@@ -6,6 +6,7 @@ import { DataTable } from 'primeng/datatable';
 import { timer, Subscription } from 'rxjs';
 import { Message } from 'primeng/components/common/api';
 import { MessageService } from 'primeng/components/common/messageservice';
+import { SignalRService } from '../signalr.service';
 
 @Component({
     selector: 'app-tasks-table',
@@ -35,7 +36,7 @@ export class TasksTableComponent implements OnInit {
     params: Subscription;
 
     constructor(private taskService: TaskService,
-        private activeRoute: ActivatedRoute, private router: Router) {
+        private activeRoute: ActivatedRoute, private router: Router, private signalr: SignalRService) {
 
         this.filters = [
             { label: 'All', value: null },
@@ -43,6 +44,28 @@ export class TasksTableComponent implements OnInit {
             { label: 'Completed', value: 'Completed' }
         ];
         this.totalRecords = 100;
+        this.signalr.registerOnServerEvents((p) => {
+            if (p.change === "Completed") {
+                const changedTask = this.tasks.find(task => task.id == p.id);
+                if (changedTask) {
+                    changedTask.status = "Completed";
+                }
+                if(this.selectedTask && this.selectedTask.id === p.id){
+                    this.taskService.currentTaskChanged.next(p.id); 
+                }
+            }
+            if (p.change === "Deleted") {
+                const changedTask = this.tasks.find(task => task.id == p.id);
+                if (changedTask) {
+                    const index = this.tasks.indexOf(changedTask);
+                    this.tasks.splice(index, 1);
+                }
+                if(this.selectedTask && this.selectedTask.id === p.id){
+                    this.selectedTask = null;
+                    this.router.navigate(['/tasks-list/']);
+                }
+            }
+        });
     }
 
     ngOnInit() {
@@ -57,6 +80,9 @@ export class TasksTableComponent implements OnInit {
                 }
             }
         });
+
+
+        this.signalr.startConnection();
     }
 
     ngOnDestroy() {
@@ -128,7 +154,7 @@ export class TasksTableComponent implements OnInit {
 
     showError(error) {
         this.msgs = [];
-        this.msgs.push({ severity: 'error', summary: 'Operation failed', detail: 'Couldn\'t add task: ' + error.statusText });
+        this.msgs.push({ severity: 'error', summary: 'Operation failed', detail: 'Error: ' + error.statusText });
     }
 
     clear() {
