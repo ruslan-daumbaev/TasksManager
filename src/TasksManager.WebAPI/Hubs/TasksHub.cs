@@ -4,12 +4,11 @@ using TasksManager.WebAPI.Models;
 
 namespace TasksManager.WebAPI.Hubs
 {
-    public class TasksHub : Hub
+    public class TasksHub : Hub<ITasksHub>
     {
-        public async Task Send(TaskChangedEvent changeEvent)
+        public async Task Notify(TaskChangedEvent changeEvent)
         {
-            // Call the broadcastMessage method to update clients.
-            await Clients.All.SendAsync("broadcastMessage", changeEvent);
+            await Clients.Others.Notify(changeEvent);
         }
     }
 }

@@ -47,8 +47,12 @@ export class SignalRService {
         this.hubConnection.stop();
     }
 
+    notify(event: TaskChangeEvent){
+        this.hubConnection.invoke("Notify", event).catch(err => console.error(err.toString()));
+    }
+
     registerOnServerEvents(callback: (n: TaskChangeEvent) => any): void {
-        this.hubConnection.on('Notify', (data: TaskChangeEvent) => {
+        this.hubConnection.on("Notify", (data: TaskChangeEvent) => {
             callback(data);
         });
     }

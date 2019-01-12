@@ -7,6 +7,7 @@ import { timer, Subscription } from 'rxjs';
 import { Message } from 'primeng/components/common/api';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { SignalRService } from '../signalr.service';
+import { TaskChangeEvent } from '../../model/task-change.model';
 
 @Component({
     selector: 'app-tasks-table',
@@ -132,6 +133,7 @@ export class TasksTableComponent implements OnInit {
         this.taskService.completeTask(rowData.id).subscribe(result => {
             rowData.status = "Completed";
             this.taskService.currentTaskChanged.next(rowData.id);
+            this.signalr.notify(new TaskChangeEvent(rowData.id, "Completed"))
         }, error => {
             console.error(error);
             this.showError(error);
@@ -146,6 +148,7 @@ export class TasksTableComponent implements OnInit {
             this.tasks.splice(index, 1);
             this.selectedTask = null;
             this.router.navigate(['/tasks-list/']);
+            this.signalr.notify(new TaskChangeEvent(rowData.id, "Deleted"))
         }, error => {
             console.error(error);
             this.showError(error);
