@@ -15,6 +15,7 @@ namespace TasksManager.Services.Implementation
 {
     public class TasksService : ITasksService
     {
+        private const int AscOrderValue = 1;
         private readonly TasksManagerDbContext dbContext;
         private readonly ILogger logger;
 
@@ -30,25 +31,15 @@ namespace TasksManager.Services.Implementation
         {
             try
             {
-                var query = dbContext.Tasks.Where(t => t.Status != (int) TaskStatus.Deleted);
-                var statusFilter = GetStatusFilter(status);
-                if (statusFilter.HasValue)
-                {
-                    query = query.Where(r => r.Status == statusFilter.Value);
-                }
-
+                var query = dbContext.Tasks.AsQueryable();
+                query = QueryHelper.ApplyFilters(query, status);
                 var totalRecords = await query.CountAsync();
-                if (!string.IsNullOrWhiteSpace(sortField))
-                {
-                    query = ApplySorting(sortField, sortOrder, query);
-                }
-
-                var tasks = await query.Skip(startFrom).Take(pageSize)
-                    .ToListAsync();
+                var tasks = await QueryHelper.ApplySorting(query, sortField, sortOrder == AscOrderValue).Skip(startFrom)
+                    .Take(pageSize).ToListAsync();
 
                 return new TasksPagedData
                 {
-                    Tasks = tasks.Select(t => t.ConvertToTaskData()).ToList(),
+                    Tasks = tasks.Select(t => t.ConvertToTaskData()).ToArray(),
                     TotalRecords = totalRecords
                 };
             }
@@ -139,21 +130,6 @@ namespace TasksManager.Services.Implementation
             logger.LogDebug($"Task with Id={id} has been successfully marked as deleted");
         }
 
-        private static IQueryable<Data.Entities.Task> ApplySorting(string sortField, int sortOrder,
-            IQueryable<Data.Entities.Task> query)
-        {
-            switch (sortField)
-            {
-                case "name":
-                    return sortOrder == 1 ? query.OrderBy(r => r.Name) : query.OrderByDescending(r => r.Name);
-                case "priority":
-                    return sortOrder == 1
-                        ? query.OrderBy(r => r.Priority)
-                        : query.OrderByDescending(r => r.Priority);
-                default:
-                    return query.OrderBy(r => r.TimeToComplete);
-            }
-        }
 
         private async Task<Data.Entities.Task> GetTask(int id)
         {
@@ -173,19 +149,6 @@ namespace TasksManager.Services.Implementation
             }
 
             return task;
-        }
-
-
-        private static int? GetStatusFilter(string status)
-        {
-            if (status == null) return null;
-            int? statusFilter = null;
-            if (Enum.TryParse(status, out TaskStatus parsedStatus))
-            {
-                statusFilter = (int) parsedStatus;
-            }
-
-            return statusFilter;
         }
     }
 }

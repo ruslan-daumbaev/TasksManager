@@ -5,9 +5,14 @@ VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasksManager.Web", "TasksManager.Web\TasksManager.Web.csproj", "{14964661-15D3-4BFE-B026-69920DCFA4F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksManager.Data", "TasksManager.Data\TasksManager.Data.csproj", "{C5A79FEE-77F8-4A82-9130-B0612F7D03CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasksManager.Data", "TasksManager.Data\TasksManager.Data.csproj", "{C5A79FEE-77F8-4A82-9130-B0612F7D03CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksManager.Services", "TasksManager.Services\TasksManager.Services.csproj", "{F1A9DFEC-4617-4606-B2F5-960F274CC211}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasksManager.Services", "TasksManager.Services\TasksManager.Services.csproj", "{F1A9DFEC-4617-4606-B2F5-960F274CC211}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{497F3EAD-E349-4667-AAA3-BCEFF044554F}"
+	ProjectSection(SolutionItems) = preProject
+		init_database.sql = init_database.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

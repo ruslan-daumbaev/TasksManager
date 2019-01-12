@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Swagger;
 using TasksManager.Data.DataContext;
 using TasksManager.Services.Contracts;
 using TasksManager.Services.Implementation;
@@ -41,6 +42,10 @@ namespace TasksManager.Web
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(cfg => { cfg.RootPath = "ClientApp/dist"; });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "TasksManager API", Version = "v1" });
+            });
 
             logger.LogDebug("Finished services configuration");
         }
@@ -69,6 +74,16 @@ namespace TasksManager.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "TasksManager API V1");
+            });
+
 
             app.UseMvc(routes =>
             {
@@ -105,6 +120,7 @@ namespace TasksManager.Web
                 }
             });
 
+        
             logger.LogDebug("Finished app configuration");
         }
     }
