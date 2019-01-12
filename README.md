@@ -24,6 +24,11 @@ dotnet run ConnectionStrings:TMConnectionString="Data Source=<server_address>;In
 - open other cmd (or PowerShell) window and navigate to folder TasksManager\src\TasksManager.SPA
 - run command:
 ```
+npm install
+```
+- wait until all required muldules are downloaded
+- run command:
+```
 ng serve
 ```
 - wait until Angular modules are compiled 
