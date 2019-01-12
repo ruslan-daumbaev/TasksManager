@@ -89,6 +89,7 @@ export class TasksTableComponent implements OnInit {
         if (this.params) {
             this.params.unsubscribe();
         }
+        this.signalr.stopConnection();
     }
 
     onRowSelect(event: { data: Task; }) {

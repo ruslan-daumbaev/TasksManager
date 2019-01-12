@@ -14,20 +14,20 @@ export class SignalRService {
     connectionEstablished = new EventEmitter<Boolean>();
 
     private connectionIsEstablished = false;
-    private _hubConnection: HubConnection;
+    private hubConnection: HubConnection;
 
     constructor() {
-        this.createConnection();      
+        this.createConnection();
     }
 
     private createConnection() {
-        this._hubConnection = new HubConnectionBuilder()
+        this.hubConnection = new HubConnectionBuilder()
             .withUrl(API_URL + '/tasks-ws')
             .build();
     }
 
     startConnection(): void {
-        this._hubConnection
+        this.hubConnection
             .start()
             .then(() => {
                 this.connectionIsEstablished = true;
@@ -35,12 +35,20 @@ export class SignalRService {
                 this.connectionEstablished.emit(true);
             })
             .catch(err => {
+                console.log(err);
                 console.log('Error while establishing connection, retrying...');
+                setTimeout(() => {
+                    this.startConnection();
+                }, 5000);
             });
     }
 
+    stopConnection(): void {
+        this.hubConnection.stop();
+    }
+
     registerOnServerEvents(callback: (n: TaskChangeEvent) => any): void {
-        this._hubConnection.on('Notify', (data: TaskChangeEvent) => {
+        this.hubConnection.on('Notify', (data: TaskChangeEvent) => {
             callback(data);
         });
     }
