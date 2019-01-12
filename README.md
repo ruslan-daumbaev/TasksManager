@@ -1,7 +1,7 @@
 # TasksManager
 
 System requirements:
-- MS SQL SERVER 2017
+- MS SQL Server (tested on 2017)
 - .NET Core SDK 2.2
 - Angular 7.X (with CLI)
 
