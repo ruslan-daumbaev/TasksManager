@@ -4,6 +4,7 @@ System requirements:
 - MS SQL Server (tested on 2017)
 - .NET Core SDK 2.2
 - Angular 7.X (with CLI)
+- Node.js version 8.x or 10.x.
 
 How to run app:
 - download sources into some folder from GitHub using command: 
