@@ -35,7 +35,7 @@ namespace TasksManager.Services.Implementation
                 query = QueryHelper.ApplyFilters(query, status);
                 var totalRecords = await query.CountAsync();
                 var tasks = await QueryHelper.ApplySorting(query, sortField, sortOrder == AscOrderValue).Skip(startFrom)
-                    .Take(pageSize).ToListAsync();
+                    .Take(pageSize).AsNoTracking().ToListAsync();
 
                 return new TasksPagedData
                 {

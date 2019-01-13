@@ -19,8 +19,6 @@
     },
     "TasksManager.WebAPI": {
       "commandName": "Project",
-      
-      "launchBrowser": false,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

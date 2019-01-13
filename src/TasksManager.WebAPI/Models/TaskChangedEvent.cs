@@ -7,11 +7,4 @@
         public string Change { get; set; }
    
     }
-
-    public enum ChangeType
-    {
-        Completed,
-        Deleted,
-        Added
-    }
 }
