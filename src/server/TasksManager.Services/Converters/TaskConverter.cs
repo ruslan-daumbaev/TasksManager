@@ -5,7 +5,7 @@ namespace TasksManager.Services.Converters
 {
     public static class TaskConverter
     {
-        public static TaskData ConvertToTaskData(this Task task)
+        public static TaskData ConvertToTaskData(this TodoTask task)
         {
             return new TaskData
             {
@@ -19,9 +19,9 @@ namespace TasksManager.Services.Converters
             };
         }
 
-        public static Task ConvertToTask(this TaskData taskData)
+        public static TodoTask ConvertToTask(this TaskData taskData)
         {
-            return new Task
+            return new TodoTask
             {
                 Id = taskData.Id,
                 Name = taskData.Name,

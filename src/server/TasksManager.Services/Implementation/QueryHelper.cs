@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using TasksManager.Data.Entities;
 using TasksManager.Services.BusinessObjects;
 
 namespace TasksManager.Services.Implementation
@@ -9,7 +10,7 @@ namespace TasksManager.Services.Implementation
         private const string NameSortField = "name";
         private const string PrioritySortField = "priority";
 
-        public static IQueryable<Data.Entities.Task> ApplyFilters(IQueryable<Data.Entities.Task> query, string status)
+        public static IQueryable<TodoTask> FilterByStatus(this IQueryable<TodoTask> query, string status)
         {
             if (string.IsNullOrWhiteSpace(status) || !Enum.TryParse(status, out TaskStatus parsedStatus) || parsedStatus == TaskStatus.Deleted)
             {
@@ -20,17 +21,14 @@ namespace TasksManager.Services.Implementation
         }
 
 
-        public static IQueryable<Data.Entities.Task> ApplySorting(IQueryable<Data.Entities.Task> query, string sortField, bool asc)
+        public static IQueryable<TodoTask> OrderByField(this IQueryable<TodoTask> query, string sortField, bool asc)
         {
-            switch (sortField)
+            return sortField switch
             {
-                case NameSortField:
-                    return asc ? query.OrderBy(r => r.Name) : query.OrderByDescending(r => r.Name);
-                case PrioritySortField:
-                    return asc ? query.OrderBy(r => r.Priority) : query.OrderByDescending(r => r.Priority);
-                default:
-                    return query.OrderBy(r => r.TimeToComplete);
-            }
+                NameSortField => asc ? query.OrderBy(r => r.Name) : query.OrderByDescending(r => r.Name),
+                PrioritySortField => asc ? query.OrderBy(r => r.Priority) : query.OrderByDescending(r => r.Priority),
+                _ => query.OrderBy(r => r.TimeToComplete),
+            };
         }
     }
 }

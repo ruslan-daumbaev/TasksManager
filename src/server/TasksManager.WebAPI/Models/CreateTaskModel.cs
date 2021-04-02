@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TasksManager.WebAPI.Models
 {
-    public class CreateTaskModel: TaskModelBase
+    public class CreateTaskModel : TaskModelBase
     {
         public string Description { get; set; }
 

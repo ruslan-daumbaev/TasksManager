@@ -1,5 +1,4 @@
-﻿using System;
-using TasksManager.Services.BusinessObjects;
+﻿using TasksManager.Services.BusinessObjects;
 
 namespace TasksManager.WebAPI.Models
 {

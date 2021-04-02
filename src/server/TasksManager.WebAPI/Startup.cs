@@ -1,14 +1,13 @@
-﻿using System;
-using Microsoft.AspNetCore.Antiforgery;
+﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Swashbuckle.AspNetCore.Swagger;
+using System;
 using TasksManager.Data.DataContext;
 using TasksManager.Services.Contracts;
 using TasksManager.Services.Implementation;
@@ -33,21 +32,20 @@ namespace TasksManager.WebAPI
         {
             logger.LogDebug("Started services configuration");
             services.AddCors();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddSignalR();
+            services.AddControllers();
 
-            var conString = Configuration["ConnectionStrings:TMConnectionString"];
-            services.AddDbContext<TasksManagerDbContext>(options => options.UseSqlServer(conString));
+            var conString = Configuration["ConnectionStrings:TasksDb"];
+            services.AddDbContext<TasksDbContext>(options => options.UseSqlServer(conString));
             services.AddTransient<ITasksService, TasksService>();
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
             // Add Swagger service
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = "TasksManager API", Version = "v1"}); });
-            services.AddSignalR();
-
+            services.AddSwaggerGen();
             logger.LogDebug("Finished services configuration");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IAntiforgery antiforgery)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery)
         {
             //for test allow all CORS operations
             app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials());
@@ -73,7 +71,6 @@ namespace TasksManager.WebAPI
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "TasksManager API V1"); });
 
             app.UseHttpsRedirection();
-            app.UseMvc();
 
             app.Use(next => context =>
             {
@@ -82,15 +79,20 @@ namespace TasksManager.WebAPI
                 {
                     var tokens = antiforgery.GetAndStoreTokens(context);
                     context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken,
-                        new CookieOptions {HttpOnly = false});
+                        new CookieOptions { HttpOnly = false });
                 }
 
                 return next(context);
             });
 
-            app.UseSignalR(routes =>
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapHub<TasksHub>("/tasks-ws");
+                endpoints.MapControllers();
+                endpoints.MapHub<TasksHub>("/tasks-ws");
             });
 
 

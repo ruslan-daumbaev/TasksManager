@@ -8,7 +8,7 @@ using TasksManager.WebAPI.Models;
 
 namespace TasksManager.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/tasks")]
     [ApiController]
     public class TasksController : ControllerBase
     {

@@ -1,10 +1,11 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using TasksManager.Data.DataContext;
+using TasksManager.Data.Entities;
 using TasksManager.Services.BusinessObjects;
 using TasksManager.Services.Contracts;
 using TasksManager.Services.Converters;
@@ -16,26 +17,28 @@ namespace TasksManager.Services.Implementation
     public class TasksService : ITasksService
     {
         private const int AscOrderValue = 1;
-        private readonly TasksManagerDbContext dbContext;
+        private const int DefaultPageSize = 100;
+
+        private readonly TasksDbContext dbContext;
         private readonly ILogger logger;
 
-
-        public TasksService(ILogger<TasksService> logger, TasksManagerDbContext dbContext)
+        public TasksService(ILogger<TasksService> logger, TasksDbContext dbContext)
         {
             this.logger = logger;
             this.dbContext = dbContext;
         }
 
-        public async Task<TasksPagedData> GetAllTasksAsync(int startFrom, int pageSize, string status, string sortField,
-            int sortOrder)
+        public async Task<TasksPagedData> GetAllTasksAsync(int? startFrom, int? pageSize, string status, string sortField,
+            int? sortOrder)
         {
             try
             {
-                var query = dbContext.Tasks.AsQueryable();
-                query = QueryHelper.ApplyFilters(query, status);
+                var query = dbContext.Set<TodoTask>().AsQueryable().FilterByStatus(status);
                 var totalRecords = await query.CountAsync();
-                var tasks = await QueryHelper.ApplySorting(query, sortField, sortOrder == AscOrderValue).Skip(startFrom)
-                    .Take(pageSize).AsNoTracking().ToListAsync();
+                var start = startFrom ?? 0;
+                var size = pageSize.HasValue && pageSize.Value > 0 ? pageSize.Value : DefaultPageSize;
+                var tasks = await query.OrderByField(sortField, sortOrder == AscOrderValue).Skip(start)
+                    .Take(size).AsNoTracking().ToListAsync();
 
                 return new TasksPagedData
                 {
@@ -65,9 +68,9 @@ namespace TasksManager.Services.Implementation
             logger.LogDebug("Start creation of new task");
             var taskRecord = newTask.ConvertToTask();
             taskRecord.AddedDate = DateTime.UtcNow;
-            taskRecord.Status = (int) TaskStatus.Active;
+            taskRecord.Status = (int)TaskStatus.Active;
             taskRecord.ChangeDate = DateTime.UtcNow;
-            dbContext.Tasks.Add(taskRecord);
+            dbContext.Set<TodoTask>().Add(taskRecord);
             try
             {
                 await dbContext.SaveChangesAsync();
@@ -86,14 +89,14 @@ namespace TasksManager.Services.Implementation
             logger.LogDebug($"Start completion for task with Id={id}");
 
             var task = await GetTask(id);
-            if (task.Status != (int) TaskStatus.Active)
+            if (task.Status != (int)TaskStatus.Active)
             {
                 return;
             }
 
             try
             {
-                task.Status = (int) TaskStatus.Completed;
+                task.Status = (int)TaskStatus.Completed;
                 task.ChangeDate = DateTime.Now;
                 dbContext.Update(task);
                 await dbContext.SaveChangesAsync();
@@ -109,15 +112,15 @@ namespace TasksManager.Services.Implementation
         public async Task DeleteTaskAsync(int id)
         {
             logger.LogDebug($"Start deletion for task with Id={id}");
-            var task = await dbContext.Tasks.FindAsync(id);
-            if (task == null || task.Status != (int) TaskStatus.Completed)
+            var task = await dbContext.Set<TodoTask>().FindAsync(id);
+            if (task == null || task.Status != (int)TaskStatus.Completed)
             {
                 return;
             }
 
             try
             {
-                task.Status = (int) TaskStatus.Deleted;
+                task.Status = (int)TaskStatus.Deleted;
                 task.ChangeDate = DateTime.Now;
                 dbContext.Update(task);
                 await dbContext.SaveChangesAsync();
@@ -131,19 +134,19 @@ namespace TasksManager.Services.Implementation
         }
 
 
-        private async Task<Data.Entities.Task> GetTask(int id)
+        private async Task<TodoTask> GetTask(int id)
         {
-            Data.Entities.Task task;
+            TodoTask task;
             try
             {
-                task = await dbContext.Tasks.FindAsync(id);
+                task = await dbContext.Set<TodoTask>().FindAsync(id);
             }
             catch (SqlException ex)
             {
                 throw new TaskProcessingException("Couldn't retrieve task", ex);
             }
 
-            if (task == null || task.Status == (int) TaskStatus.Deleted)
+            if (task == null || task.Status == (int)TaskStatus.Deleted)
             {
                 throw new TaskNotFoundException(id);
             }
