@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using TasksManager.Services.BusinessObjects;
 
-namespace TasksManager.Services.Contracts
+namespace TasksManager.Services.Interfaces
 {
     public interface ITasksService
     {

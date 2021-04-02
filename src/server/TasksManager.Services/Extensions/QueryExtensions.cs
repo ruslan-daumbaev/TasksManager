@@ -3,9 +3,9 @@ using System.Linq;
 using TasksManager.Data.Entities;
 using TasksManager.Services.BusinessObjects;
 
-namespace TasksManager.Services.Implementation
+namespace TasksManager.Services.Extensions
 {
-    internal static class QueryHelper
+    internal static class QueryExtensions
     {
         private const string NameSortField = "name";
         private const string PrioritySortField = "priority";

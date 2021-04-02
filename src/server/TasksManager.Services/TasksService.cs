@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 using TasksManager.Data.DataContext;
 using TasksManager.Data.Entities;
 using TasksManager.Services.BusinessObjects;
-using TasksManager.Services.Contracts;
 using TasksManager.Services.Converters;
 using TasksManager.Services.Exceptions;
+using TasksManager.Services.Extensions;
+using TasksManager.Services.Interfaces;
 using TaskStatus = TasksManager.Services.BusinessObjects.TaskStatus;
 
-namespace TasksManager.Services.Implementation
+namespace TasksManager.Services
 {
     public class TasksService : ITasksService
     {

@@ -9,8 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using TasksManager.Data.DataContext;
-using TasksManager.Services.Contracts;
-using TasksManager.Services.Implementation;
+using TasksManager.Services;
+using TasksManager.Services.Interfaces;
 using TasksManager.WebAPI.Hubs;
 using TasksManager.WebAPI.Infrastructure;
 

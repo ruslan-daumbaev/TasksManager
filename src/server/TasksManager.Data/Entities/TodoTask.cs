@@ -21,6 +21,5 @@ namespace TasksManager.Data.Entities
         public DateTime ChangeDate { get; set; }
 
         public int Status { get; set; }
-
     }
 }

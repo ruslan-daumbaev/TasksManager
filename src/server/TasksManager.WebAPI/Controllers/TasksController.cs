@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Ganss.XSS;
 using Microsoft.AspNetCore.Mvc;
 using TasksManager.Services.BusinessObjects;
-using TasksManager.Services.Contracts;
+using TasksManager.Services.Interfaces;
 using TasksManager.WebAPI.Models;
 
 namespace TasksManager.WebAPI.Controllers
