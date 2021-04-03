@@ -22,7 +22,7 @@ import { MessageModule } from 'primeng/message';
 import { EditorModule } from 'primeng/editor';
 import { ToastModule } from 'primeng/toast';
 import { TaskService } from './services/tasks.service';
-import { SignalRService } from './services/signalr.service';
+import { NotificationsService } from './services/notifications.service';
 import { TaskDetailsResolverService } from './services/task-details-resolver.service';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -68,7 +68,7 @@ import { NavigationService } from './services/navigation.service';
   ],
   providers: [
     TaskService,
-    SignalRService,
+    NotificationsService,
     TaskDetailsResolverService,
     NavigationService
   ],

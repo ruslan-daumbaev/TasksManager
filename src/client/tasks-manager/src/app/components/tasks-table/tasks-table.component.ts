@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Message } from 'primeng/api/message';
-import { Subscription, timer } from 'rxjs';
+import { ReplaySubject, timer } from 'rxjs';
 import { TaskChangeEvent } from 'src/app/models/task-change.model';
 import { Task } from 'src/app/models/task.model';
-import { SignalRService } from 'src/app/services/signalr.service';
+import { NotificationsService } from 'src/app/services/notifications.service';
 import { TaskService } from 'src/app/services/tasks.service';
 import { TaskStatus } from '../../models/task-status.enum';
-import { take } from 'rxjs/operators';
+import { take, takeUntil } from 'rxjs/operators';
 import { NavigationService } from '../../services/navigation.service';
 
 @Component({
@@ -15,7 +15,7 @@ import { NavigationService } from '../../services/navigation.service';
   templateUrl: './tasks-table.component.html',
 })
 export class TasksTableComponent implements OnInit, OnDestroy {
-  private routeSubscription: Subscription;
+  private subscription$ = new ReplaySubject<any>(1);
   public messages: Message[] = [];
   public selectedId: number;
   public tasks: Task[];
@@ -30,7 +30,7 @@ export class TasksTableComponent implements OnInit, OnDestroy {
   constructor(
     private taskService: TaskService,
     private activeRoute: ActivatedRoute,
-    private signalr: SignalRService,
+    private notificationsService: NotificationsService,
     private navigationService: NavigationService
   ) {
   }
@@ -43,21 +43,20 @@ export class TasksTableComponent implements OnInit, OnDestroy {
     ];
 
     if (this.activeRoute.firstChild && this.activeRoute.firstChild.params) {
-      this.routeSubscription = this.activeRoute.firstChild.params.subscribe(params => (this.selectedId = params.id));
+      this.activeRoute.firstChild.params.pipe(takeUntil(this.subscription$)).subscribe(params => (this.selectedId = params.id));
     }
 
-    timer(0, 1000).subscribe(() => this.tasks?.forEach(task => task.resetActualDate()));
+    timer(0, 1000).pipe(takeUntil(this.subscription$)).subscribe(() => this.tasks?.forEach(task => task.resetActualDate()));
 
-    this.signalr.registerOnServerEvents(event => this.onTaskChanged(event));
-    this.signalr.startConnection();
+    this.notificationsService.subscribe(event => this.onTaskChanged(event));
+    this.notificationsService.startListening();
   }
 
 
   public ngOnDestroy(): void {
-    if (this.routeSubscription) {
-      this.routeSubscription.unsubscribe();
-    }
-    this.signalr.stopConnection();
+    this.subscription$.next(null);
+    this.subscription$.complete();
+    this.notificationsService.stopListening();
   }
 
   public onRowSelect(event: { data: Task }): void {
@@ -109,7 +108,7 @@ export class TasksTableComponent implements OnInit, OnDestroy {
       () => {
         rowData.status = TaskStatus.Completed;
         this.taskService.currentTaskChanged.next(rowData.id);
-        this.signalr.notify(new TaskChangeEvent(rowData.id, TaskStatus.Completed));
+        this.notificationsService.notify(new TaskChangeEvent(rowData.id, TaskStatus.Completed));
       },
       (error) => {
         this.showError(error);
@@ -126,7 +125,7 @@ export class TasksTableComponent implements OnInit, OnDestroy {
         this.tasks.splice(index, 1);
         this.selectedTask = null;
         this.navigationService.goToTasks();
-        this.signalr.notify(new TaskChangeEvent(rowData.id, TaskStatus.Deleted));
+        this.notificationsService.notify(new TaskChangeEvent(rowData.id, TaskStatus.Deleted));
       },
       (error) => {
         this.showError(error);

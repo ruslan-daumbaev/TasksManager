@@ -8,7 +8,7 @@ const API_URL = environment.apiUrl;
 @Injectable({
   providedIn: 'root',
 })
-export class SignalRService {
+export class NotificationsService {
   private connectionEstablished = new EventEmitter<boolean>();
   private connectionIsEstablished = false;
   private hubConnection: HubConnection;
@@ -17,7 +17,7 @@ export class SignalRService {
     this.createConnection();
   }
 
-  public startConnection(): void {
+  public startListening(): void {
     this.hubConnection
       .start()
       .then(() => {
@@ -29,12 +29,12 @@ export class SignalRService {
         console.log(err);
         console.log('Error while establishing connection, retrying...');
         setTimeout(() => {
-          this.startConnection();
+          this.startListening();
         }, 5000);
       });
   }
 
-  public stopConnection(): void {
+  public stopListening(): void {
     this.hubConnection.stop();
   }
 
@@ -42,7 +42,7 @@ export class SignalRService {
     this.hubConnection.invoke('Notify', event).catch(err => console.error(err.toString()));
   }
 
-  public registerOnServerEvents(callback: (n: TaskChangeEvent) => any): void {
+  public subscribe(callback: (n: TaskChangeEvent) => any): void {
     this.hubConnection.on('Notify', (data: TaskChangeEvent) => {
       callback(data);
     });
