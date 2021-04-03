@@ -1,0 +1,117 @@
+<h4 class="page-header">Add new task</h4>
+
+<p-messages [(value)]="messages"></p-messages>
+
+<div class="col-md-8 order-md-1">
+  <form (ngSubmit)="save(taskForm)" [formGroup]="taskForm">
+    <div>
+      <div class="row mb-4">
+        <div class="col-2 themed-grid-col">
+          <label for="name">Name *:</label>
+        </div>
+        <div class="col-6 themed-grid-col">
+          <input id="name" type="text" pInputText formControlName="name" name="name" maxlength="100"/>
+        </div>
+        <div class="col-4 themed-grid-col">
+          <p-message severity="error" text="Name is required"
+                     *ngIf="!taskForm.controls['name'].valid&&taskForm.controls['name'].dirty"></p-message>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-2 themed-grid-col">
+          <label>Description</label>
+        </div>
+
+        <div class="col-6 themed-grid-col">
+          <p-editor formControlName="description" [style]="{'height':'220px'}">
+            <p-header>
+                            <span class="ql-formats">
+                                <button class="ql-bold" aria-label="Bold"></button>
+                                <button class="ql-italic" aria-label="Italic"></button>
+                                <button class="ql-underline" aria-label="Underline"></button>
+                                <button class="ql-strike" aria-label="Strike"></button>
+                            </span>
+              <span class="ql-formats">
+                                <select class="ql-color">
+                                    <option selected="selected"></option>
+                                    <option value="#e60000"></option>
+                                    <option value="#ff9900"></option>
+                                    <option value="#ffff00"></option>
+                                    <option value="#008a00"></option>
+                                    <option value="#0066cc"></option>
+                                    <option value="#9933ff"></option>
+                                    <option value="#ffffff"></option>
+                                    <option value="#facccc"></option>
+                                    <option value="#ffebcc"></option>
+                                    <option value="#ffffcc"></option>
+                                    <option value="#cce8cc"></option>
+                                    <option value="#cce0f5"></option>
+                                    <option value="#ebd6ff"></option>
+                                    <option value="#bbbbbb"></option>
+                                    <option value="#f06666"></option>
+                                    <option value="#ffc266"></option>
+                                    <option value="#ffff66"></option>
+                                    <option value="#66b966"></option>
+                                    <option value="#66a3e0"></option>
+                                    <option value="#c285ff"></option>
+                                    <option value="#888888"></option>
+                                    <option value="#a10000"></option>
+                                    <option value="#b26b00"></option>
+                                    <option value="#b2b200"></option>
+                                    <option value="#006100"></option>
+                                    <option value="#0047b2"></option>
+                                    <option value="#6b24b2"></option>
+                                    <option value="#444444"></option>
+                                    <option value="#5c0000"></option>
+                                    <option value="#663d00"></option>
+                                    <option value="#666600"></option>
+                                    <option value="#003700"></option>
+                                    <option value="#002966"></option>
+                                    <option value="#3d1466"></option>
+                                </select>
+                            </span>
+              <span class="ql-formats">
+                                <button class="ql-link" aria-label="Link"></button>
+                            </span>
+            </p-header>
+          </p-editor>
+
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-2 themed-grid-col">
+          <label>Priority *:</label>
+        </div>
+
+        <div class="col-6 themed-grid-col">
+          <p-spinner formControlName="priority" name="priority" min="1" max="100"></p-spinner>
+        </div>
+
+        <div class="col-4 themed-grid-col">
+          <p-message severity="error" text="Priority is required and it must be from 1 to 100"
+                     *ngIf="!taskForm.controls['priority'].valid&&taskForm.controls['priority'].dirty"></p-message>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-2 themed-grid-col">
+          <label>Time to complete *:</label>
+        </div>
+        <div class="col-6 themed-grid-col">
+          <p-calendar formControlName="timeToComplete" showTime="true" [minDate]="minDate" dateFormat="dd.mm.yy"
+                      hourFormat="24" name="timeToComplete"></p-calendar>
+        </div>
+        <div class="col-4 themed-grid-col">
+          <p-message severity="error" text="Time to complete is required"
+                     *ngIf="!taskForm.controls['timeToComplete'].valid&&taskForm.controls['timeToComplete'].dirty"></p-message>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-4 themed-grid-col">
+          <p-button label="Save" [disabled]="!taskForm.valid" type="submit"></p-button>
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>

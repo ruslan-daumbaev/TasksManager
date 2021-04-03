@@ -1,0 +1,62 @@
+<h4 class="page-header">Tasks list</h4>
+
+<p-messages [(value)]="messages"></p-messages>
+
+<p *ngIf="!tasks"><em>Loading...</em></p>
+<div class="content-root">
+  <div class="table">
+    <p-table #dt [value]="tasks" selectionMode="single" [(selection)]="selectedTask" dataKey="id"
+             [globalFilterFields]="['status']" [virtualScroll]="true"
+             [rows]="10" [virtualRowHeight]="48" [lazy]="true" [totalRecords]="totalRecords" [loading]="loading"
+             [scrollable]="true"
+             scrollHeight="400px"
+             (onRowSelect)="onRowSelect($event)" (onRowUnselect)="onRowUnselect()" (onLazyLoad)="loadDataOnScroll($event)">
+      <ng-template pTemplate="caption">
+        <div>
+          <p-selectButton [options]="statuses" [style]="{'float':'left'}" [(ngModel)]="selectedFilter"
+                          (onChange)="dt.filterGlobal($event.value, 'equals')"></p-selectButton>
+          <button type="button" pButton icon="fa fa-refresh" iconPos="left" label="Refresh" style="float:right"
+                  (click)="update(dt)"></button>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th [pSortableColumn]="'name'">
+            Name
+            <p-sortIcon [field]="'name'"></p-sortIcon>
+          </th>
+          <th>
+            Status
+          </th>
+          <th [pSortableColumn]="'priority'">
+            Priority
+            <p-sortIcon [field]="'priority'"></p-sortIcon>
+          </th>
+          <th>Added date</th>
+          <th>Time to complete</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-task>
+        <tr [pSelectableRow]="rowData">
+          <td>{{task.name}}</td>
+          <td>{{task.status}}</td>
+          <td>{{task.priority}}</td>
+          <td>{{task.addedDate | date:'dd.MM.yyyy H:mm'}}</td>
+          <td>{{task.timeToCompleteActual}}</td>
+          <td>
+            <button *ngIf="task.status=='Active'" pButton type="button" icon="pi pi-check"
+                    class="ui-button-success row-button"
+                    label="Complete" (click)="completeTask($event, rowData)"></button>
+            <button *ngIf="task.status=='Completed'" pButton type="button" icon="pi pi-trash"
+                    class="ui-button-danger  row-button"
+                    label="Delete" (click)="removeTask($event, rowData)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <div class="details">
+    <router-outlet></router-outlet>
+  </div>
+</div>
