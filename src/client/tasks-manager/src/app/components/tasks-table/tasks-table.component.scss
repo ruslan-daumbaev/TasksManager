@@ -1,0 +1,14 @@
+.content-root {
+  display: flex;
+  flex-direction: column;
+
+  .table {
+    display: flex;
+    flex: 1;
+  }
+
+  .details {
+    display: flex;
+    flex-direction: column;
+  }
+}

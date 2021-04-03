@@ -33,7 +33,7 @@ namespace TasksManager.WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get([FromRoute] int id)
         {
             var task = await tasksService.GetTaskAsync(id);
             return Ok(new
@@ -66,14 +66,14 @@ namespace TasksManager.WebAPI.Controllers
 
 
         [HttpPut]
-        public async Task<IActionResult> Put(UpdateStatusModel updateModel)
+        public async Task<IActionResult> Put([FromBody] UpdateStatusModel updateModel)
         {
             await tasksService.CompleteTaskAsync(updateModel.Id);
             return Ok();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             await tasksService.DeleteTaskAsync(id);
             return NoContent();

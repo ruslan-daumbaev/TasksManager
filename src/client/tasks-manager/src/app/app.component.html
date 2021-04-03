@@ -1,0 +1,29 @@
+<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+  <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Tasks manager</a>
+</nav>
+
+<div class='container-fluid'>
+  <div class='row'>
+    <div>
+      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <div class="sidebar-sticky">
+          <ul class="nav flex-column">
+            <li [routerLinkActive]='["nav-link-active"]' class="nav-item">
+              <a [routerLink]='["/add-task"]' class="nav-link">
+                <span class='glyphicon glyphicon-education'></span> Add new task
+              </a>
+            </li>
+            <li [routerLinkActive]='["nav-link-active"]' class="nav-item">
+              <a [routerLink]='["/tasks-list"]' class="nav-link">
+                <span class='glyphicon glyphicon-th-list'></span> Tasks list
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
