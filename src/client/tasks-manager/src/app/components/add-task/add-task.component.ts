@@ -4,10 +4,10 @@ import {
   FormControl,
   FormGroup,
 } from '@angular/forms';
-import { Router } from '@angular/router';
 import { Message } from 'primeng/api';
 import { take } from 'rxjs/operators';
 import { TaskService } from '../../services/tasks.service';
+import { NavigationService } from '../../services/navigation.service';
 
 @Component({
   selector: 'app-add-task',
@@ -19,8 +19,8 @@ export class AddTaskComponent implements OnInit {
   public messages: Message[] = [];
 
   constructor(
-    private router: Router,
-    private taskService: TaskService) {
+    private taskService: TaskService,
+    private navigationService: NavigationService) {
   }
 
   public ngOnInit(): void {
@@ -35,7 +35,7 @@ export class AddTaskComponent implements OnInit {
   public save(form: any): void {
     this.clear();
     this.taskService.addTask(form.value).pipe(take(1)).subscribe(
-      (result) => this.router.navigate(['/tasks-list/' + result.id]),
+      (result) => this.navigationService.goToTask(result.id),
       (error) => this.showError(error)
     );
   }
