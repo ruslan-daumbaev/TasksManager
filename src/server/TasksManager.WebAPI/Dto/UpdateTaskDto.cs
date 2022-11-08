@@ -2,7 +2,7 @@
 
 namespace TasksManager.WebAPI.Dto
 {
-    public class UpdateStatusDto
+    public class UpdateTaskDto
     {
         [Required]
         public int Id { get; set; }

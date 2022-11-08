@@ -28,7 +28,7 @@ namespace TasksManager.WebAPI.Controllers
             var tasksData = await tasksService.GetAllTasksAsync(page, pageSize, statusFilter, sortField, sortOrder, token);
             return Ok(new
             {
-                Tasks = tasksData.Tasks.Select(t => new TaskDto(t)).ToList(),
+                Tasks = tasksData.Tasks.Select(t => new TaskRowDto(t)).ToList(),
                 tasksData.TotalRecords
             });
         }
@@ -37,7 +37,7 @@ namespace TasksManager.WebAPI.Controllers
         public async Task<IActionResult> Get([FromRoute] int id, CancellationToken token)
         {
             var task = await tasksService.GetTaskAsync(id, token);
-            return Ok(new TaskDetailsDto
+            return Ok(new TaskDto
             {
                 Id = task.Id,
                 Name = task.Name,
@@ -59,11 +59,11 @@ namespace TasksManager.WebAPI.Controllers
                 TimeToComplete = model.TimeToComplete
             }, token);
 
-            return Ok(new TaskDto(task));
+            return Ok(new TaskRowDto(task));
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] UpdateStatusDto updateModel, CancellationToken token)
+        public async Task<IActionResult> Put([FromBody] UpdateTaskDto updateModel, CancellationToken token)
         {
             await tasksService.CompleteTaskAsync(updateModel.Id, token);
             return Ok();
