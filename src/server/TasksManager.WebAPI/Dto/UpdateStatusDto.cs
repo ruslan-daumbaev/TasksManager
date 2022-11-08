@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TasksManager.WebAPI.Models
+namespace TasksManager.WebAPI.Dto
 {
-    public class UpdateStatusModel
+    public class UpdateStatusDto
     {
         [Required]
         public int Id { get; set; }

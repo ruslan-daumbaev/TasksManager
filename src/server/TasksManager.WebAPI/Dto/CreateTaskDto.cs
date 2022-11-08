@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace TasksManager.WebAPI.Models
+namespace TasksManager.WebAPI.Dto
 {
-    public class CreateTaskModel : TaskModelBase
+    public record CreateTaskDto : BaseTaskDto
     {
         public string Description { get; set; }
 

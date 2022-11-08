@@ -1,10 +1,10 @@
-﻿using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Ganss.XSS;
-using Microsoft.AspNetCore.Mvc;
 using TasksManager.Services.BusinessObjects;
 using TasksManager.Services.Interfaces;
-using TasksManager.WebAPI.Models;
+using TasksManager.WebAPI.Dto;
 
 namespace TasksManager.WebAPI.Controllers
 {
@@ -13,69 +13,66 @@ namespace TasksManager.WebAPI.Controllers
     public class TasksController : ControllerBase
     {
         private readonly ITasksService tasksService;
+        private readonly ISecurityService securityService;
 
-
-        public TasksController(ITasksService tasksService)
+        public TasksController(ITasksService tasksService, ISecurityService securityService)
         {
             this.tasksService = tasksService;
+            this.securityService = securityService;
         }
 
         [HttpGet("")]
         public async Task<IActionResult> Get(int page, int pageSize, string statusFilter, string sortField,
-            int sortOrder)
+            int sortOrder, CancellationToken token)
         {
-            var tasksData = await tasksService.GetAllTasksAsync(page, pageSize, statusFilter, sortField, sortOrder);
+            var tasksData = await tasksService.GetAllTasksAsync(page, pageSize, statusFilter, sortField, sortOrder, token);
             return Ok(new
             {
-                Tasks = tasksData.Tasks.Select(t => new TaskModel(t)).ToList(),
+                Tasks = tasksData.Tasks.Select(t => new TaskDto(t)).ToList(),
                 tasksData.TotalRecords
             });
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get([FromRoute] int id)
+        public async Task<IActionResult> Get([FromRoute] int id, CancellationToken token)
         {
-            var task = await tasksService.GetTaskAsync(id);
-            return Ok(new
-                {
-                    task.Id,
-                    task.Name,
-                    task.Description,
-                    Status = task.Status.ToString(),
-                    task.Priority,
-                    AddedDate = task.AddedDateString
-                }
-            );
+            var task = await tasksService.GetTaskAsync(id, token);
+            return Ok(new TaskDetailsDto
+            {
+                Id = task.Id,
+                Name = task.Name,
+                Description = task.Description,
+                Status = task.Status.ToString(),
+                Priority = task.Priority,
+                AddedDate = task.AddedDateString
+            });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateTaskModel model)
+        public async Task<IActionResult> Post([FromBody] CreateTaskDto model, CancellationToken token)
         {
-            var sanitizer = new HtmlSanitizer();
             var task = await tasksService.CreateTaskAsync(new TaskData
             {
                 Name = model.Name,
-                Description = sanitizer.Sanitize(model.Description),
+                Description = securityService.SanitizeText(model.Description),
                 Priority = model.Priority,
                 TimeToComplete = model.TimeToComplete
-            });
+            }, token);
 
-            return Ok(new TaskModel(task));
+            return Ok(new TaskDto(task));
         }
 
-
-
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] UpdateStatusModel updateModel)
+        public async Task<IActionResult> Put([FromBody] UpdateStatusDto updateModel, CancellationToken token)
         {
-            await tasksService.CompleteTaskAsync(updateModel.Id);
+            await tasksService.CompleteTaskAsync(updateModel.Id, token);
             return Ok();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken token)
         {
-            await tasksService.DeleteTaskAsync(id);
+            await tasksService.DeleteTaskAsync(id, token);
             return NoContent();
         }
     }

@@ -1,10 +1,10 @@
 ﻿using TasksManager.Services.BusinessObjects;
 
-namespace TasksManager.WebAPI.Models
+namespace TasksManager.WebAPI.Dto
 {
-    public class TaskModel : TaskModelBase
+    public record TaskDto : BaseTaskDto
     {
-        public TaskModel(TaskData data)
+        public TaskDto(TaskData data)
         {
             Id = data.Id;
             Name = data.Name;

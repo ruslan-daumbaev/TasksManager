@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TasksManager.WebAPI.Models
+namespace TasksManager.WebAPI.Dto
 {
-    public abstract class TaskModelBase
+    public abstract record BaseTaskDto
     {
         [Required]
         [StringLength(100)]

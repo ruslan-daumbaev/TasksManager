@@ -38,6 +38,7 @@ namespace TasksManager.WebAPI
             var conString = Configuration["ConnectionStrings:TasksDb"];
             services.AddDbContext<TasksDbContext>(options => options.UseSqlServer(conString));
             services.AddTransient<ITasksService, TasksService>();
+            services.AddSingleton<ISecurityService, SecurityService>();
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
             // Add Swagger service

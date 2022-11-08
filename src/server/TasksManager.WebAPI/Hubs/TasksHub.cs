@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using TasksManager.WebAPI.Models;
 
 namespace TasksManager.WebAPI.Hubs
 {

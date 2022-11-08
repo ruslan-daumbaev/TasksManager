@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using TasksManager.WebAPI.Models;
 
 namespace TasksManager.WebAPI.Hubs
 {

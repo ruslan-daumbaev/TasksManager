@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TasksManager.Data.DataContext;
 using TasksManager.Data.Entities;
@@ -30,16 +31,16 @@ namespace TasksManager.Services
         }
 
         public async Task<TasksPagedData> GetAllTasksAsync(int? startFrom, int? pageSize, string status, string sortField,
-            int? sortOrder)
+            int? sortOrder, CancellationToken token)
         {
             try
             {
                 var query = dbContext.Set<TodoTask>().AsQueryable().FilterByStatus(status);
-                var totalRecords = await query.CountAsync();
+                var totalRecords = await query.CountAsync(token);
                 var start = startFrom ?? 0;
                 var size = pageSize.HasValue && pageSize.Value > 0 ? pageSize.Value : DefaultPageSize;
                 var tasks = await query.OrderByField(sortField, sortOrder == AscOrderValue).Skip(start)
-                    .Take(size).AsNoTracking().ToListAsync();
+                    .Take(size).AsNoTracking().ToListAsync(token);
 
                 return new TasksPagedData
                 {
@@ -54,17 +55,11 @@ namespace TasksManager.Services
         }
 
 
-        public async Task<TaskData> GetTaskAsync(int id)
-        {
-            return (await GetTask(id)).ConvertToTaskData();
-        }
+        public async Task<TaskData> GetTaskAsync(int id, CancellationToken token) => (await GetTask(id, token)).ConvertToTaskData();
 
-        public async Task<TaskData> CreateTaskAsync(TaskData newTask)
+        public async Task<TaskData> CreateTaskAsync(TaskData newTask, CancellationToken token)
         {
-            if (newTask == null)
-            {
-                throw new ArgumentNullException(nameof(newTask));
-            }
+            ArgumentNullException.ThrowIfNull(nameof(newTask));
 
             logger.LogDebug("Start creation of new task");
             var taskRecord = newTask.ConvertToTask();
@@ -74,7 +69,7 @@ namespace TasksManager.Services
             dbContext.Set<TodoTask>().Add(taskRecord);
             try
             {
-                await dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync(token);
             }
             catch (SqlException ex)
             {
@@ -85,11 +80,11 @@ namespace TasksManager.Services
             return taskRecord.ConvertToTaskData();
         }
 
-        public async Task CompleteTaskAsync(int id)
+        public async Task CompleteTaskAsync(int id, CancellationToken token)
         {
             logger.LogDebug($"Start completion for task with Id={id}");
 
-            var task = await GetTask(id);
+            var task = await GetTask(id, token);
             if (task.Status != (int)TaskStatus.Active)
             {
                 return;
@@ -100,7 +95,7 @@ namespace TasksManager.Services
                 task.Status = (int)TaskStatus.Completed;
                 task.ChangeDate = DateTime.Now;
                 dbContext.Update(task);
-                await dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync(token);
             }
             catch (SqlException ex)
             {
@@ -110,10 +105,10 @@ namespace TasksManager.Services
             logger.LogDebug($"Task with Id={id} has been successfully marked as completed");
         }
 
-        public async Task DeleteTaskAsync(int id)
+        public async Task DeleteTaskAsync(int id, CancellationToken token)
         {
             logger.LogDebug($"Start deletion for task with Id={id}");
-            var task = await dbContext.Set<TodoTask>().FindAsync(id);
+            var task = await dbContext.Set<TodoTask>().FindAsync(new object[] { id }, cancellationToken: token);
             if (task == null || task.Status != (int)TaskStatus.Completed)
             {
                 return;
@@ -124,7 +119,7 @@ namespace TasksManager.Services
                 task.Status = (int)TaskStatus.Deleted;
                 task.ChangeDate = DateTime.Now;
                 dbContext.Update(task);
-                await dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync(token);
             }
             catch (SqlException ex)
             {
@@ -135,12 +130,12 @@ namespace TasksManager.Services
         }
 
 
-        private async Task<TodoTask> GetTask(int id)
+        private async Task<TodoTask> GetTask(int id, CancellationToken token)
         {
             TodoTask task;
             try
             {
-                task = await dbContext.Set<TodoTask>().FindAsync(id);
+                task = await dbContext.Set<TodoTask>().FindAsync(new object[] { id }, cancellationToken: token);
             }
             catch (SqlException ex)
             {

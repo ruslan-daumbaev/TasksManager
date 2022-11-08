@@ -1,4 +1,4 @@
-﻿namespace TasksManager.WebAPI.Models
+﻿namespace TasksManager.WebAPI.Hubs
 {
     public class TaskChangedEvent
     {
